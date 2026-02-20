@@ -83,6 +83,11 @@ var onScan = {
 		}
 		oDomElement.removeEventListener("keydown", this._handleKeyDown);
 
+		// clear any pending scan validation timer
+		if (oDomElement.scannerDetectionData.vars.testTimer) {
+			clearTimeout(oDomElement.scannerDetectionData.vars.testTimer);
+		}
+
 		// clearing data off DomElement
 		oDomElement.scannerDetectionData = undefined;
 		return;
@@ -220,6 +225,10 @@ var onScan = {
 	 */
 	_reinitialize: function(oDomElement){
 		var oVars = oDomElement.scannerDetectionData.vars;
+		if (oVars.testTimer) {
+			clearTimeout(oVars.testTimer);
+			oVars.testTimer = false;
+		}
 		oVars.firstCharTime = 0;
 		oVars.lastCharTime = 0;
 		oVars.accumulatedString = '';
