@@ -25,10 +25,14 @@
   "homepage": "https://github.com/axenox/onscan.js/",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint onscan.js"
+    "lint": "eslint onscan.js",
+    "format": "prettier --write onscan.js",
+    "format:check": "prettier --check onscan.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "eslint": "^9.39.2"
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1"
   }
 }
