@@ -136,6 +136,91 @@ describe('onScan', () => {
         });
     });
 
+    describe('ignoreIfFocusOn', () => {
+        // Helper: simulate keydown events to trigger scan detection (unlike string simulate which bypasses keydown)
+        function simulateKeydowns(element, keys) {
+            keys.forEach((k) => {
+                const evt = new KeyboardEvent('keydown', typeof k === 'object' ? k : { keyCode: k });
+                element.dispatchEvent(evt);
+            });
+        }
+
+        it('should ignore scans when a DOM element has focus', () => {
+            const input = document.createElement('input');
+            document.body.appendChild(input);
+            input.focus();
+
+            let scannedCode = null;
+            onScan.attachTo(document, {
+                minLength: 3,
+                suffixKeyCodes: [13],
+                ignoreIfFocusOn: input,
+                onScan: (code) => { scannedCode = code; },
+            });
+            simulateKeydowns(document, [
+                { keyCode: 65, key: 'A' },
+                { keyCode: 66, key: 'B' },
+                { keyCode: 67, key: 'C' },
+                { keyCode: 13, key: 'Enter' },
+            ]);
+            expect(scannedCode).toBeNull();
+
+            onScan.detachFrom(document);
+            document.body.removeChild(input);
+        });
+
+        it('should ignore scans when a CSS selector matches focused element', () => {
+            const input = document.createElement('input');
+            document.body.appendChild(input);
+            input.focus();
+
+            let scannedCode = null;
+            onScan.attachTo(document, {
+                minLength: 3,
+                suffixKeyCodes: [13],
+                ignoreIfFocusOn: 'input',
+                onScan: (code) => { scannedCode = code; },
+            });
+            simulateKeydowns(document, [
+                { keyCode: 65, key: 'A' },
+                { keyCode: 66, key: 'B' },
+                { keyCode: 67, key: 'C' },
+                { keyCode: 13, key: 'Enter' },
+            ]);
+            expect(scannedCode).toBeNull();
+
+            onScan.detachFrom(document);
+            document.body.removeChild(input);
+        });
+
+        it('should ignore scans with an array of mixed selectors and elements', () => {
+            const input = document.createElement('input');
+            const textarea = document.createElement('textarea');
+            document.body.appendChild(input);
+            document.body.appendChild(textarea);
+            textarea.focus();
+
+            let scannedCode = null;
+            onScan.attachTo(document, {
+                minLength: 3,
+                suffixKeyCodes: [13],
+                ignoreIfFocusOn: [input, 'textarea'],
+                onScan: (code) => { scannedCode = code; },
+            });
+            simulateKeydowns(document, [
+                { keyCode: 65, key: 'A' },
+                { keyCode: 66, key: 'B' },
+                { keyCode: 67, key: 'C' },
+                { keyCode: 13, key: 'Enter' },
+            ]);
+            expect(scannedCode).toBeNull();
+
+            onScan.detachFrom(document);
+            document.body.removeChild(input);
+            document.body.removeChild(textarea);
+        });
+    });
+
     describe('isAttachedTo', () => {
         it('should return false for unattached elements', () => {
             expect(onScan.isAttachedTo(document)).toBe(false);

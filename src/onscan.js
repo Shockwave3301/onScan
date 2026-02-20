@@ -233,27 +233,32 @@ var onScan = {
 	 */
 	_isFocusOnIgnoredElement: function(oDomElement){
 
-		var ignoreSelectors = oDomElement.scannerDetectionData.options.ignoreIfFocusOn;
+		var ignoreIfFocusOn = oDomElement.scannerDetectionData.options.ignoreIfFocusOn;
 
-        if(!ignoreSelectors){
+        if(!ignoreIfFocusOn){
 			return false;
 		}
 
 		var oFocused = document.activeElement;
 
-		// checks if ignored element is an array, and if so it checks if one of the elements of it is an active one
-		if (Array.isArray(ignoreSelectors)){
-			for(var i=0; i<ignoreSelectors.length; i++){
-				if(oFocused.matches(ignoreSelectors[i]) === true){
+		// Normalize to array for uniform handling
+		var aIgnoreList = Array.isArray(ignoreIfFocusOn) ? ignoreIfFocusOn : [ignoreIfFocusOn];
+
+		for(var i=0; i<aIgnoreList.length; i++){
+			var item = aIgnoreList[i];
+			// DOM element: compare by identity
+			if (item instanceof HTMLElement) {
+				if (oFocused === item) {
+					return true;
+				}
+			// CSS selector string: use matches()
+			} else if (typeof item === 'string') {
+				if (oFocused.matches(item)) {
 					return true;
 				}
 			}
-		// if the option consists of an single element, it only checks this one
-		} else if (oFocused.matches(ignoreSelectors)){
-			return true;
 		}
 
-		// if the active element is not listed in the ignoreIfFocusOn option, return false
 	    return false;
     },
 
