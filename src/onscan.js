@@ -1,6 +1,8 @@
 /*
  * onScan.js - scan-events for hardware barcodes scanners in javascript
  */
+const scannerDataMap = new WeakMap();
+
 const onScan = {
 
 	/**
@@ -10,7 +12,7 @@ const onScan = {
 	 */
 	attachTo(oDomElement, oOptions) {
 
-		if (oDomElement.scannerDetectionData !== undefined) {
+		if (scannerDataMap.has(oDomElement)) {
 			throw new Error("onScan.js is already initialized for DOM element " + oDomElement);
 		}
 
@@ -40,8 +42,8 @@ const onScan = {
 
 		const mergedOptions = Object.assign({}, oDefaults, oOptions);
 
-		// initializing options and variables on DomElement
-		oDomElement.scannerDetectionData = {
+		// initializing options and variables
+		scannerDataMap.set(oDomElement, {
 			options: mergedOptions,
 			vars: {
 				firstCharTime: 0,
@@ -51,7 +53,7 @@ const onScan = {
 				longPressTimeStart: 0,
 				longPressed: false,
 			},
-		};
+		});
 
 		// initializing handlers (based on settings)
 		if (mergedOptions.reactToPaste === true) {
@@ -71,22 +73,24 @@ const onScan = {
 	 * @return {void}
 	 */
 	detachFrom(oDomElement) {
+		const oData = scannerDataMap.get(oDomElement);
+
 		// detaching all used events
-		if (oDomElement.scannerDetectionData.options.reactToPaste) {
+		if (oData.options.reactToPaste) {
 			oDomElement.removeEventListener("paste", this._handlePaste);
 		}
-		if (oDomElement.scannerDetectionData.options.scanButtonKeyCode !== false) {
+		if (oData.options.scanButtonKeyCode !== false) {
 			oDomElement.removeEventListener("keyup", this._handleKeyUp);
 		}
 		oDomElement.removeEventListener("keydown", this._handleKeyDown);
 
 		// clear any pending scan validation timer
-		if (oDomElement.scannerDetectionData.vars.testTimer) {
-			clearTimeout(oDomElement.scannerDetectionData.vars.testTimer);
+		if (oData.vars.testTimer) {
+			clearTimeout(oData.vars.testTimer);
 		}
 
-		// clearing data off DomElement
-		oDomElement.scannerDetectionData = undefined;
+		// clearing data off element
+		scannerDataMap.delete(oDomElement);
 	},
 
 	/**
@@ -94,7 +98,7 @@ const onScan = {
 	 * @return {Object}
 	 */
 	getOptions(oDomElement) {
-		return oDomElement.scannerDetectionData.options;
+		return scannerDataMap.get(oDomElement).options;
 	},
 
 	/**
@@ -103,8 +107,10 @@ const onScan = {
 	 * @return {Object} self
 	 */
 	setOptions(oDomElement, oOptions) {
+		const oData = scannerDataMap.get(oDomElement);
+
 		// check if some handlers need to be changed based on possible option changes
-		switch (oDomElement.scannerDetectionData.options.reactToPaste) {
+		switch (oData.options.reactToPaste) {
 			case true:
 				if (oOptions.reactToPaste === false) {
 					oDomElement.removeEventListener("paste", this._handlePaste);
@@ -117,7 +123,7 @@ const onScan = {
 				break;
 		}
 
-		switch (oDomElement.scannerDetectionData.options.scanButtonKeyCode) {
+		switch (oData.options.scanButtonKeyCode) {
 			case false:
 				if (oOptions.scanButtonKeyCode !== false) {
 					oDomElement.addEventListener("keyup", this._handleKeyUp);
@@ -131,9 +137,7 @@ const onScan = {
 		}
 
 		// merge old and new options
-		oDomElement.scannerDetectionData.options = Object.assign(
-			{}, oDomElement.scannerDetectionData.options, oOptions
-		);
+		oData.options = Object.assign({}, oData.options, oOptions);
 
 		// reinitialize
 		this._reinitialize(oDomElement);
@@ -207,7 +211,7 @@ const onScan = {
 	 * @param {Element} oDomElement
 	 */
 	_reinitialize(oDomElement) {
-		const oVars = oDomElement.scannerDetectionData.vars;
+		const oVars = scannerDataMap.get(oDomElement).vars;
 		if (oVars.testTimer) {
 			clearTimeout(oVars.testTimer);
 			oVars.testTimer = false;
@@ -223,7 +227,7 @@ const onScan = {
 	 * @return {boolean}
 	 */
 	_isFocusOnIgnoredElement(oDomElement) {
-		const ignoreIfFocusOn = oDomElement.scannerDetectionData.options.ignoreIfFocusOn;
+		const ignoreIfFocusOn = scannerDataMap.get(oDomElement).options.ignoreIfFocusOn;
 
 		if (!ignoreIfFocusOn) {
 			return false;
@@ -255,7 +259,7 @@ const onScan = {
 	 * @return {boolean}
 	 */
 	_validateScanCode(oDomElement, sScanCode) {
-		const oScannerData = oDomElement.scannerDetectionData;
+		const oScannerData = scannerDataMap.get(oDomElement);
 		if (!oScannerData) { return false; }
 		const oOptions = oScannerData.options;
 		const iSingleScanQty = oScannerData.options.singleScanQty;
@@ -320,8 +324,8 @@ const onScan = {
 	 */
 	_handleKeyDown(e) {
 		const iKeyCode = onScan._getNormalizedKeyNum(e);
-		const oOptions = this.scannerDetectionData.options;
-		const oVars = this.scannerDetectionData.vars;
+		const oOptions = scannerDataMap.get(this).options;
+		const oVars = scannerDataMap.get(this).vars;
 		let bScanFinished = false;
 
 		if (oOptions.onKeyDetect.call(this, iKeyCode, e) === false) {
@@ -404,8 +408,8 @@ const onScan = {
 	 * @param {Event} e
 	 */
 	_handlePaste(e) {
-		const oOptions = this.scannerDetectionData.options;
-		const oVars = this.scannerDetectionData.vars;
+		const oOptions = scannerDataMap.get(this).options;
+		const oVars = scannerDataMap.get(this).vars;
 		const sPasteString = (e.clipboardData || window.clipboardData).getData('text');
 
 		if (onScan._isFocusOnIgnoredElement(this)) {
@@ -437,9 +441,10 @@ const onScan = {
 
 		const iKeyCode = onScan._getNormalizedKeyNum(e);
 
-		if (iKeyCode == this.scannerDetectionData.options.scanButtonKeyCode) {
-			clearTimeout(this.scannerDetectionData.vars.longPressTimer);
-			this.scannerDetectionData.vars.longPressed = false;
+		const oData = scannerDataMap.get(this);
+		if (iKeyCode == oData.options.scanButtonKeyCode) {
+			clearTimeout(oData.vars.longPressTimer);
+			oData.vars.longPressed = false;
 		}
 	},
 
@@ -450,7 +455,7 @@ const onScan = {
 	 * @return {boolean}
 	 */
 	isScanInProgressFor(oDomElement) {
-		return oDomElement.scannerDetectionData.vars.firstCharTime > 0;
+		return scannerDataMap.get(oDomElement).vars.firstCharTime > 0;
 	},
 
 	/**
@@ -460,7 +465,7 @@ const onScan = {
 	 * @return {boolean}
 	 */
 	isAttachedTo(oDomElement) {
-		return (oDomElement.scannerDetectionData !== undefined);
+		return scannerDataMap.has(oDomElement);
 	},
 };
 
