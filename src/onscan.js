@@ -1,84 +1,81 @@
 /*
  * onScan.js - scan-events for hardware barcodes scanners in javascript
  */
-var onScan = {
+const onScan = {
 
 	/**
-	 *
-	 * @param DomElement oDomElement
-	 * @param Object oOptions
-	 * @return self
+	 * @param {Element} oDomElement
+	 * @param {Object} oOptions
+	 * @return {Object} self
 	 */
-	attachTo: function(oDomElement, oOptions) {
+	attachTo(oDomElement, oOptions) {
 
-		if(oDomElement.scannerDetectionData !== undefined){
+		if (oDomElement.scannerDetectionData !== undefined) {
 			throw new Error("onScan.js is already initialized for DOM element " + oDomElement);
 		}
 
-		var oDefaults = {
-			onScan: function(sScanned, iQty){}, // Callback after detection of a successful scanning:  function(){sScancode, iCount)}()
-			onScanError: function(oDebug){}, // Callback after detection of an unsuccessful scanning (scanned string in parameter)
-			onKeyProcess: function(sChar, oEvent){}, // Callback after receiving and processing a char (scanned char in parameter)
-			onKeyDetect: function(iKeyCode, oEvent){}, // Callback after detecting a keyDown (key char in parameter) - in contrast to onKeyProcess, this fires for non-character keys like tab, arrows, etc. too!
-			onPaste: function(sPasted, oEvent){}, // Callback after receiving a value on paste, no matter if it is a valid code or not
-			keyCodeMapper: function(oEvent) {return onScan.decodeKeyEvent(oEvent)}, // Custom function to decode a keydown event into a character. Must return decoded character or NULL if the given event should not be processed.
-			onScanButtonLongPress: function(){}, // Callback after detection of a successful scan while the scan button was pressed and held down
-			scanButtonKeyCode:false, // Key code of the scanner hardware button (if the scanner button acts as a key itself)
-			scanButtonLongPressTime:500, // How long (ms) the hardware button should be pressed, until a callback gets executed
-			timeBeforeScanTest:100, // Wait duration (ms) after keypress event to check if scanning is finished
-			avgTimeByChar:30, // Average time (ms) between 2 chars. Used to differentiate between keyboard typing and scanning
-			minLength:6, // Minimum length for a scanning
-			suffixKeyCodes:[9,13], // Chars to remove and means end of scanning
-			prefixKeyCodes:[], // Chars to remove and means start of scanning
-			ignoreIfFocusOn:false, // do not handle scans if the currently focused element matches this selector or object
-			stopPropagation:false, // Stop immediate propagation on keypress event
-			preventDefault:false, // Prevent default action on keypress event
-			captureEvents:false, // Get the events before any listeners deeper in the DOM
-			reactToKeydown:true, // look for scan input in keyboard events
-			reactToPaste:false, // look for scan input in paste events
-			singleScanQty: 1, // Quantity of Items put out to onScan in a single scan
-		}
+		const oDefaults = {
+			onScan(sScanned, iQty) {},
+			onScanError(oDebug) {},
+			onKeyProcess(sChar, oEvent) {},
+			onKeyDetect(iKeyCode, oEvent) {},
+			onPaste(sPasted, oEvent) {},
+			keyCodeMapper: (oEvent) => onScan.decodeKeyEvent(oEvent),
+			onScanButtonLongPress() {},
+			scanButtonKeyCode: false,
+			scanButtonLongPressTime: 500,
+			timeBeforeScanTest: 100,
+			avgTimeByChar: 30,
+			minLength: 6,
+			suffixKeyCodes: [9, 13],
+			prefixKeyCodes: [],
+			ignoreIfFocusOn: false,
+			stopPropagation: false,
+			preventDefault: false,
+			captureEvents: false,
+			reactToKeydown: true,
+			reactToPaste: false,
+			singleScanQty: 1,
+		};
 
-		oOptions = this._mergeOptions(oDefaults, oOptions);
+		const mergedOptions = Object.assign({}, oDefaults, oOptions);
 
 		// initializing options and variables on DomElement
 		oDomElement.scannerDetectionData = {
-				options: oOptions,
-				vars:{
-					firstCharTime: 0,
-					lastCharTime: 0,
-					accumulatedString: '',
-					testTimer: false,
-					longPressTimeStart: 0,
-					longPressed: false
-				}
-
+			options: mergedOptions,
+			vars: {
+				firstCharTime: 0,
+				lastCharTime: 0,
+				accumulatedString: '',
+				testTimer: false,
+				longPressTimeStart: 0,
+				longPressed: false,
+			},
 		};
 
 		// initializing handlers (based on settings)
-		if (oOptions.reactToPaste === true){
-			oDomElement.addEventListener("paste", this._handlePaste, oOptions.captureEvents);
+		if (mergedOptions.reactToPaste === true) {
+			oDomElement.addEventListener("paste", this._handlePaste, mergedOptions.captureEvents);
 		}
-		if (oOptions.scanButtonKeyCode !== false){
-			oDomElement.addEventListener("keyup", this._handleKeyUp, oOptions.captureEvents);
+		if (mergedOptions.scanButtonKeyCode !== false) {
+			oDomElement.addEventListener("keyup", this._handleKeyUp, mergedOptions.captureEvents);
 		}
-		if (oOptions.reactToKeydown === true || oOptions.scanButtonKeyCode !== false){
-			oDomElement.addEventListener("keydown", this._handleKeyDown, oOptions.captureEvents);
+		if (mergedOptions.reactToKeydown === true || mergedOptions.scanButtonKeyCode !== false) {
+			oDomElement.addEventListener("keydown", this._handleKeyDown, mergedOptions.captureEvents);
 		}
 		return this;
 	},
 
 	/**
-	 *
-	 * @param DomElement oDomElement
-	 * @return void
+	 * @param {Element} oDomElement
+	 * @return {void}
 	 */
-	detachFrom: function(oDomElement) {
+	detachFrom(oDomElement) {
 		// detaching all used events
-		if (oDomElement.scannerDetectionData.options.reactToPaste){
+		if (oDomElement.scannerDetectionData.options.reactToPaste) {
 			oDomElement.removeEventListener("paste", this._handlePaste);
 		}
-		if (oDomElement.scannerDetectionData.options.scanButtonKeyCode !== false){
+		if (oDomElement.scannerDetectionData.options.scanButtonKeyCode !== false) {
 			oDomElement.removeEventListener("keyup", this._handleKeyUp);
 		}
 		oDomElement.removeEventListener("keydown", this._handleKeyDown);
@@ -90,56 +87,55 @@ var onScan = {
 
 		// clearing data off DomElement
 		oDomElement.scannerDetectionData = undefined;
-		return;
 	},
 
 	/**
-	 *
-	 * @param DomElement oDomElement
-	 * @return Object
+	 * @param {Element} oDomElement
+	 * @return {Object}
 	 */
-	getOptions: function(oDomElement){
+	getOptions(oDomElement) {
 		return oDomElement.scannerDetectionData.options;
 	},
 
 	/**
-	 *
-	 * @param DomElement oDomElement
-	 * @param Object oOptions
-	 * @return self
+	 * @param {Element} oDomElement
+	 * @param {Object} oOptions
+	 * @return {Object} self
 	 */
-	setOptions: function(oDomElement, oOptions){
+	setOptions(oDomElement, oOptions) {
 		// check if some handlers need to be changed based on possible option changes
-		switch (oDomElement.scannerDetectionData.options.reactToPaste){
+		switch (oDomElement.scannerDetectionData.options.reactToPaste) {
 			case true:
-				if (oOptions.reactToPaste === false){
+				if (oOptions.reactToPaste === false) {
 					oDomElement.removeEventListener("paste", this._handlePaste);
 				}
 				break;
 			case false:
-				if (oOptions.reactToPaste === true){
+				if (oOptions.reactToPaste === true) {
 					oDomElement.addEventListener("paste", this._handlePaste);
 				}
 				break;
 		}
 
-		switch (oDomElement.scannerDetectionData.options.scanButtonKeyCode){
+		switch (oDomElement.scannerDetectionData.options.scanButtonKeyCode) {
 			case false:
-				if (oOptions.scanButtonKeyCode !== false){
+				if (oOptions.scanButtonKeyCode !== false) {
 					oDomElement.addEventListener("keyup", this._handleKeyUp);
 				}
 				break;
 			default:
-				if (oOptions.scanButtonKeyCode === false){
+				if (oOptions.scanButtonKeyCode === false) {
 					oDomElement.removeEventListener("keyup", this._handleKeyUp);
 				}
 				break;
 		}
 
 		// merge old and new options
-		oDomElement.scannerDetectionData.options = this._mergeOptions(oDomElement.scannerDetectionData.options, oOptions);
+		oDomElement.scannerDetectionData.options = Object.assign(
+			{}, oDomElement.scannerDetectionData.options, oOptions
+		);
 
-		// reinitiallize
+		// reinitialize
 		this._reinitialize(oDomElement);
 		return this;
 	},
@@ -152,20 +148,20 @@ var onScan = {
 	 * keys, control keys, and other non-printable keys so they are ignored by the
 	 * scan accumulator.
 	 *
-	 * @param KeyboardEvent oEvent
-	 * @return string|null - the decoded character, or null if the event should be ignored
+	 * @param {KeyboardEvent} oEvent
+	 * @return {string|null} the decoded character, or null if the event should be ignored
 	 */
-	decodeKeyEvent : function (oEvent) {
-		var sKey = oEvent.key;
+	decodeKeyEvent(oEvent) {
+		const sKey = oEvent.key;
 
 		// If event.key is not available, fall back to legacy keyCode decoding
 		if (sKey === undefined || sKey === '') {
-			var iCode = oEvent.which || oEvent.keyCode;
+			const iCode = oEvent.which || oEvent.keyCode;
 			if (iCode >= 96 && iCode <= 105) {
 				return String(iCode - 96);
 			}
 			if (iCode >= 48 && iCode <= 90) {
-				var sDecoded = String.fromCharCode(iCode);
+				const sDecoded = String.fromCharCode(iCode);
 				return oEvent.shiftKey ? sDecoded.toUpperCase() : sDecoded.toLowerCase();
 			}
 			return null;
@@ -182,33 +178,24 @@ var onScan = {
 
 	/**
 	 * Simulates a scan of the provided code.
-     *
-	 * The scan code can be defined as
-	 * - a string - in this case no keyCode decoding is done and the code is merely validated
-	 * against constraints like minLenght, etc.
-	 * - an array of keyCodes (e.g. `[70,71,80]`) - will produce `keydown` events with corresponding
-	 * `keyCode` properties. NOTE: these events will have empty `key` properties, so decoding may
-	 * yield different results than with native events.
-	 * - an array of objects (e.g. `[{keyCode: 70, key: "F", shiftKey: true}, {keyCode: 71, key: "g"}]`) -
-	 * this way almost any event can be simulated, but it's a lot of work to do.
 	 *
-	 * @param DomElement oDomElement
-	 * @param string|array mStringOrArray
-	 * @return self
+	 * @param {Element} oDomElement
+	 * @param {string|Array} mStringOrArray
+	 * @return {Object} self
 	 */
-	simulate: function(oDomElement, mStringOrArray){
+	simulate(oDomElement, mStringOrArray) {
 		this._reinitialize(oDomElement);
-		if (Array.isArray(mStringOrArray)){
-			mStringOrArray.forEach(function(mKey){
-				var oEventProps = {};
-				if( (typeof mKey === "object" || typeof mKey === 'function') && (mKey !== null) ) {
+		if (Array.isArray(mStringOrArray)) {
+			mStringOrArray.forEach((mKey) => {
+				let oEventProps = {};
+				if (typeof mKey === "object" && mKey !== null) {
 					oEventProps = mKey;
 				} else {
 					oEventProps.keyCode = parseInt(mKey);
 				}
-				var oEvent = new KeyboardEvent('keydown', oEventProps);
+				const oEvent = new KeyboardEvent('keydown', oEventProps);
 				oDomElement.dispatchEvent(oEvent);
-			})
+			});
 		} else {
 			this._validateScanCode(oDomElement, mStringOrArray);
 		}
@@ -217,11 +204,10 @@ var onScan = {
 
 	/**
 	 * @private
-	 * @param DomElement oDomElement
-	 * @return void
+	 * @param {Element} oDomElement
 	 */
-	_reinitialize: function(oDomElement){
-		var oVars = oDomElement.scannerDetectionData.vars;
+	_reinitialize(oDomElement) {
+		const oVars = oDomElement.scannerDetectionData.vars;
 		if (oVars.testTimer) {
 			clearTimeout(oVars.testTimer);
 			oVars.testTimer = false;
@@ -229,35 +215,29 @@ var onScan = {
 		oVars.firstCharTime = 0;
 		oVars.lastCharTime = 0;
 		oVars.accumulatedString = '';
-		return;
 	},
 
 	/**
 	 * @private
-	 * @param DomElement oDomElement
-     * @return boolean
+	 * @param {Element} oDomElement
+	 * @return {boolean}
 	 */
-	_isFocusOnIgnoredElement: function(oDomElement){
+	_isFocusOnIgnoredElement(oDomElement) {
+		const ignoreIfFocusOn = oDomElement.scannerDetectionData.options.ignoreIfFocusOn;
 
-		var ignoreIfFocusOn = oDomElement.scannerDetectionData.options.ignoreIfFocusOn;
-
-        if(!ignoreIfFocusOn){
+		if (!ignoreIfFocusOn) {
 			return false;
 		}
 
-		var oFocused = document.activeElement;
+		const oFocused = document.activeElement;
+		const aIgnoreList = Array.isArray(ignoreIfFocusOn) ? ignoreIfFocusOn : [ignoreIfFocusOn];
 
-		// Normalize to array for uniform handling
-		var aIgnoreList = Array.isArray(ignoreIfFocusOn) ? ignoreIfFocusOn : [ignoreIfFocusOn];
-
-		for(var i=0; i<aIgnoreList.length; i++){
-			var item = aIgnoreList[i];
-			// DOM element: compare by identity
+		for (let i = 0; i < aIgnoreList.length; i++) {
+			const item = aIgnoreList[i];
 			if (item instanceof HTMLElement) {
 				if (oFocused === item) {
 					return true;
 				}
-			// CSS selector string: use matches()
 			} else if (typeof item === 'string') {
 				if (oFocused.matches(item)) {
 					return true;
@@ -265,27 +245,25 @@ var onScan = {
 			}
 		}
 
-	    return false;
-    },
+		return false;
+	},
 
-    /**
-     * Validates the scan code accumulated by the given DOM element and fires the respective events.
-     *
-     * @private
-     * @param DomElement oDomElement
-     * @return boolean
-     */
-	_validateScanCode: function(oDomElement, sScanCode){
-		var oScannerData = oDomElement.scannerDetectionData;
+	/**
+	 * @private
+	 * @param {Element} oDomElement
+	 * @param {string} sScanCode
+	 * @return {boolean}
+	 */
+	_validateScanCode(oDomElement, sScanCode) {
+		const oScannerData = oDomElement.scannerDetectionData;
 		if (!oScannerData) { return false; }
-		var oOptions = oScannerData.options;
-		var iSingleScanQty = oScannerData.options.singleScanQty;
-		var iFirstCharTime = oScannerData.vars.firstCharTime;
-		var iLastCharTime = oScannerData.vars.lastCharTime;
-		var oScanError = {};
-        var oEvent;
+		const oOptions = oScannerData.options;
+		const iSingleScanQty = oScannerData.options.singleScanQty;
+		const iFirstCharTime = oScannerData.vars.firstCharTime;
+		const iLastCharTime = oScannerData.vars.lastCharTime;
+		let oScanError = {};
 
-		switch(true){
+		switch (true) {
 
 			// detect codes that are too short
 			case (sScanCode.length < oOptions.minLength):
@@ -304,123 +282,86 @@ var onScan = {
 			// if a code was not filtered out earlier it is valid
 			default:
 				oOptions.onScan.call(oDomElement, sScanCode, iSingleScanQty);
-				oEvent = new CustomEvent(
-					'scan',
-					{
-						detail: {
-							scanCode: sScanCode,
-							qty: iSingleScanQty
-						}
-					}
-				);
-				oDomElement.dispatchEvent(oEvent);
+				oDomElement.dispatchEvent(new CustomEvent('scan', {
+					detail: {
+						scanCode: sScanCode,
+						qty: iSingleScanQty,
+					},
+				}));
 				onScan._reinitialize(oDomElement);
 				return true;
 		}
 
-		// If an error occurred (otherwise the method would return earlier) create an object for errordetection
+		// If an error occurred, build the debug object
 		oScanError.scanCode = sScanCode;
 		oScanError.scanDuration = iLastCharTime - iFirstCharTime;
 		oScanError.avgTimeByChar = oOptions.avgTimeByChar;
 		oScanError.minLength = oOptions.minLength;
 
 		oOptions.onScanError.call(oDomElement, oScanError);
-
-		oEvent = new CustomEvent(
-			'scanError',
-			{detail: oScanError}
-		);
-		oDomElement.dispatchEvent(oEvent);
+		oDomElement.dispatchEvent(new CustomEvent('scanError', { detail: oScanError }));
 
 		onScan._reinitialize(oDomElement);
 		return false;
-    },
-
-    /**
-     * @private
-     * @param Object oDefaults
-     * @param Object oOptions
-     * @return Object
-     */
-	_mergeOptions: function(oDefaults, oOptions){
-		var oExtended = {};
-		var prop;
-		for (prop in oDefaults){
-			if (Object.prototype.hasOwnProperty.call(oDefaults, prop)){
-				oExtended[prop] = oDefaults[prop];
-			}
-		}
-		for (prop in oOptions){
-			if (Object.prototype.hasOwnProperty.call(oOptions, prop)){
-				oExtended[prop] = oOptions[prop];
-			}
-		}
-		return oExtended;
 	},
 
 	/**
 	 * @private
-	 * @param KeyboardEvent e
-	 * @return int
-	 * @see https://www.w3schools.com/jsref/event_key_keycode.asp
+	 * @param {KeyboardEvent} e
+	 * @return {number}
 	 */
-	_getNormalizedKeyNum: function(e){
+	_getNormalizedKeyNum(e) {
 		return e.which || e.keyCode;
 	},
 
-
 	/**
 	 * @private
-	 * @param KeyboardEvent e
-	 * @return void
+	 * @param {KeyboardEvent} e
 	 */
-	_handleKeyDown: function(e){
-		var iKeyCode = onScan._getNormalizedKeyNum(e);
-		var oOptions = this.scannerDetectionData.options;
-		var oVars = this.scannerDetectionData.vars;
-		var bScanFinished = false;
+	_handleKeyDown(e) {
+		const iKeyCode = onScan._getNormalizedKeyNum(e);
+		const oOptions = this.scannerDetectionData.options;
+		const oVars = this.scannerDetectionData.vars;
+		let bScanFinished = false;
 
 		if (oOptions.onKeyDetect.call(this, iKeyCode, e) === false) {
 			return;
 		}
 
-		if (onScan._isFocusOnIgnoredElement(this)){
+		if (onScan._isFocusOnIgnoredElement(this)) {
 			return;
 		}
 
-        // If it's just the button of the scanner, ignore it and wait for the real input
-	    if(oOptions.scanButtonKeyCode !== false && iKeyCode==oOptions.scanButtonKeyCode) {
-
-			// if the button was first pressed, start a timeout for the callback, which gets interrupted if the scanbutton gets released
-			if (!oVars.longPressed){
-				oVars.longPressTimer = setTimeout( oOptions.onScanButtonLongPress, oOptions.scanButtonLongPressTime, this);
+		// If it's just the button of the scanner, ignore it and wait for the real input
+		if (oOptions.scanButtonKeyCode !== false && iKeyCode == oOptions.scanButtonKeyCode) {
+			if (!oVars.longPressed) {
+				oVars.longPressTimer = setTimeout(oOptions.onScanButtonLongPress, oOptions.scanButtonLongPressTime, this);
 				oVars.longPressed = true;
 			}
-
 			return;
-        }
+		}
 
-		var character;
+		let character;
 
-		switch(true){
+		switch (true) {
 			// If it's not the first character and we encounter a terminating character, trigger scan process
-			case (oVars.firstCharTime && oOptions.suffixKeyCodes.indexOf(iKeyCode)!==-1):
+			case (oVars.firstCharTime && oOptions.suffixKeyCodes.indexOf(iKeyCode) !== -1):
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				bScanFinished=true;
+				bScanFinished = true;
 				break;
 
 			// If it's the first character and we encountered one of the starting characters, don't process the scan
-			case (!oVars.firstCharTime && oOptions.prefixKeyCodes.indexOf(iKeyCode)!==-1):
+			case (!oVars.firstCharTime && oOptions.prefixKeyCodes.indexOf(iKeyCode) !== -1):
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				bScanFinished=false;
+				bScanFinished = false;
 				break;
 
 			// Otherwise, just add the character to the scan string we're building
 			default:
 				character = oOptions.keyCodeMapper.call(this, e);
-				if (character === null){
+				if (character === null) {
 					return;
 				}
 				oVars.accumulatedString += character;
@@ -432,46 +373,42 @@ var onScan = {
 					e.stopImmediatePropagation();
 				}
 
-				bScanFinished=false;
+				bScanFinished = false;
 				break;
 		}
 
-		if(!oVars.firstCharTime){
-			oVars.firstCharTime=Date.now();
+		if (!oVars.firstCharTime) {
+			oVars.firstCharTime = Date.now();
 		}
 
-		oVars.lastCharTime=Date.now();
+		oVars.lastCharTime = Date.now();
 
-		if(oVars.testTimer){
+		if (oVars.testTimer) {
 			clearTimeout(oVars.testTimer);
 		}
 
-		if(bScanFinished){
+		if (bScanFinished) {
 			onScan._validateScanCode(this, oVars.accumulatedString);
-			oVars.testTimer=false;
+			oVars.testTimer = false;
 		} else {
-			oVars.testTimer=setTimeout(onScan._validateScanCode, oOptions.timeBeforeScanTest, this, oVars.accumulatedString);
+			oVars.testTimer = setTimeout(onScan._validateScanCode, oOptions.timeBeforeScanTest, this, oVars.accumulatedString);
 		}
 
 		if (character !== undefined) {
 			oOptions.onKeyProcess.call(this, character, e);
 		}
-		return;
 	},
 
 	/**
 	 * @private
-	 * @param Event e
-	 * @return void
+	 * @param {Event} e
 	 */
-	_handlePaste: function(e){
+	_handlePaste(e) {
+		const oOptions = this.scannerDetectionData.options;
+		const oVars = this.scannerDetectionData.vars;
+		const sPasteString = (e.clipboardData || window.clipboardData).getData('text');
 
-		var oOptions = this.scannerDetectionData.options;
-		var oVars = this.scannerDetectionData.vars;
-		var sPasteString = (e.clipboardData || window.clipboardData).getData('text');
-
-		// if the focus is on an ignored element, abort
-		if (onScan._isFocusOnIgnoredElement(this)){
+		if (onScan._isFocusOnIgnoredElement(this)) {
 			return;
 		}
 
@@ -486,51 +423,45 @@ var onScan = {
 		oVars.firstCharTime = 0;
 		oVars.lastCharTime = 0;
 
-		// validate the string
 		onScan._validateScanCode(this, sPasteString);
-		return;
 	},
 
 	/**
 	 * @private
-	 * @param KeyboardEvent e
-	 * @return void
+	 * @param {KeyboardEvent} e
 	 */
-	_handleKeyUp: function(e){
-		// if the focus is on an ignored element, abort
-		if (onScan._isFocusOnIgnoredElement(this)){
+	_handleKeyUp(e) {
+		if (onScan._isFocusOnIgnoredElement(this)) {
 			return;
 		}
 
-		var iKeyCode = onScan._getNormalizedKeyNum(e);
+		const iKeyCode = onScan._getNormalizedKeyNum(e);
 
-		// if hardware key is not being pressed anymore stop the timeout and reset
-		if (iKeyCode == this.scannerDetectionData.options.scanButtonKeyCode){
+		if (iKeyCode == this.scannerDetectionData.options.scanButtonKeyCode) {
 			clearTimeout(this.scannerDetectionData.vars.longPressTimer);
 			this.scannerDetectionData.vars.longPressed = false;
 		}
-		return;
 	},
 
 	/**
 	 * Returns TRUE if the scanner is currently in the middle of a scan sequence.
 	 *
-	 * @param DomElement
-	 * @return boolean
+	 * @param {Element} oDomElement
+	 * @return {boolean}
 	 */
-	isScanInProgressFor: function(oDomElement) {
+	isScanInProgressFor(oDomElement) {
 		return oDomElement.scannerDetectionData.vars.firstCharTime > 0;
 	},
 
 	/**
 	 * Returns TRUE if onScan is attached to the given DOM element and FALSE otherwise.
 	 *
-	 * @param DomElement
-	 * @return boolean
+	 * @param {Element} oDomElement
+	 * @return {boolean}
 	 */
-	isAttachedTo: function(oDomElement) {
+	isAttachedTo(oDomElement) {
 		return (oDomElement.scannerDetectionData !== undefined);
-	}
+	},
 };
 
 export default onScan;
