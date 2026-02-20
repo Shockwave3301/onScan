@@ -47,8 +47,8 @@ export default [
     },
     rules: {
       "no-unused-vars": ["warn", { args: "none" }],
-      "no-var": "off",
-      "prefer-const": "off",
+      "no-var": "error",
+      "prefer-const": "error",
     },
   },
 ];

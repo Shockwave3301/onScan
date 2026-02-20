@@ -53,7 +53,7 @@ Convert from ES5 to modern JS. This is a breaking change for IE — document the
 - [x] **4.3** Replace DOM expando (`oDomElement.scannerDetectionData`) with a `WeakMap` keyed by element
 - [x] **4.4** Convert UMD wrapper to ES module source; let the bundler (Phase 1.3) produce UMD/CJS outputs *(done in Phase 1.3)*
 - [x] **4.5** Use arrow functions where `this` binding to the DOM element is not needed
-- [ ] **4.6** Drop IE9+ support claim from README; document baseline as modern evergreen browsers
+- [x] **4.6** Drop IE9+ support claim from README; document baseline as modern evergreen browsers
 
 ---
 
