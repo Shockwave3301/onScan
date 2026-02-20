@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "lib": ["ES2020", "DOM"],
+    "moduleResolution": "node"
+  },
+  "include": ["onscan.d.ts", "test/types.test.ts"]
+}
