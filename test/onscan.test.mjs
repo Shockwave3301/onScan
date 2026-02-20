@@ -105,6 +105,17 @@ describe('onScan', () => {
         });
     });
 
+    describe('decodeKeyEvent', () => {
+        it('should return a string for numpad keys', () => {
+            onScan.attachTo(document);
+            for (let i = 0; i <= 9; i++) {
+                const result = onScan.decodeKeyEvent({ keyCode: 96 + i, which: 96 + i });
+                expect(result).toBe(String(i));
+                expect(typeof result).toBe('string');
+            }
+        });
+    });
+
     describe('paste handling', () => {
         it('should detect scan from paste event', () => {
             let scannedCode = null;

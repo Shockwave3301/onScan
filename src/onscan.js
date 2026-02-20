@@ -173,7 +173,7 @@ var onScan = {
 				}
 				return sDecoded;
 			case iCode >= 96 && iCode <= 105: // numbers on numeric keypad
-				return 0+(iCode-96);
+				return String(iCode - 96);
 		}
 		return '';
 	},
