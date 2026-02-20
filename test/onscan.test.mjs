@@ -80,6 +80,26 @@ describe('onScan', () => {
         });
     });
 
+    describe('paste handling', () => {
+        it('should detect scan from paste event', () => {
+            let scannedCode = null;
+            onScan.attachTo(document, {
+                reactToPaste: true,
+                reactToKeydown: false,
+                minLength: 3,
+                onScan: (code) => {
+                    scannedCode = code;
+                },
+            });
+
+            const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+            pasteEvent.clipboardData = { getData: () => 'BARCODE123' };
+            document.dispatchEvent(pasteEvent);
+
+            expect(scannedCode).toBe('BARCODE123');
+        });
+    });
+
     describe('isAttachedTo', () => {
         it('should return false for unattached elements', () => {
             expect(onScan.isAttachedTo(document)).toBe(false);

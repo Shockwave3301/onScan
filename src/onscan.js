@@ -453,7 +453,7 @@ var onScan = {
 
 		var oOptions = this.scannerDetectionData.options;
 		var oVars = this.scannerDetectionData.vars;
-		var sPasteString = (event.clipboardData || window.clipboardData).getData('text');
+		var sPasteString = (e.clipboardData || window.clipboardData).getData('text');
 
 		// if the focus is on an ignored element, abort
 		if (onScan._isFocusOnIgnoredElement(this)){
@@ -466,7 +466,7 @@ var onScan = {
 			e.stopImmediatePropagation();
 		}
 
-		oOptions.onPaste.call(this, sPasteString, event);
+		oOptions.onPaste.call(this, sPasteString, e);
 
 		oVars.firstCharTime = 0;
 		oVars.lastCharTime = 0;
