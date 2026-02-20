@@ -29,7 +29,7 @@ package: just load `index.html` from the lib's folder to play around with the se
 1) A hardware barcode scanner, that 
     - acts as a keyboard (often called keyboard-wedge-mode), or
     - pastes the scanned codes (clipboard-mode)
-2) A more-or-less modern browser (IE9+)
+2) A modern evergreen browser (Chrome, Firefox, Safari, Edge)
 
 ## How it works
 
@@ -153,13 +153,9 @@ Note: there are more callbacks in the options, than event types. The non-event c
 
 ## Decoding key codes
 
-By default, onScan.js ignores any key codes other than those matching letters and numbers. The latter are transformed into characters using built-in browser logic (i.e. the `event.key`). These [key codes](https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes) are converted to characters:
+By default, onScan.js uses `event.key` to decode keyboard events into characters. Any single-character `key` value is treated as a printable character; multi-character `key` values (like `Shift`, `Enter`, `ArrowLeft`) are ignored. This correctly handles all keyboard layouts, shifted characters, and special symbols out of the box.
 
-- `48`-`90` (letters and regular numbers)
-- `96`-`105` (numeric keypad numbers)
-- `106`-`111` (numeric keypad operations)
-
-This should work for the vast majority of cases. However, if you encounter strange extra characters in the codes read or miss some characters (like hypens), you can override the default decoding algorithm by specifying a custom `keyCodeMapper` like this:
+If you need custom decoding logic for a specific scanner, you can override the default algorithm by specifying a custom `keyCodeMapper` like this:
 
 ```javascript
 onScan.attachTo(document, {
