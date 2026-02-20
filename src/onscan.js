@@ -205,7 +205,7 @@ var onScan = {
 					oEventProps.keyCode = parseInt(mKey);
 				}
 				var oEvent = new KeyboardEvent('keydown', oEventProps);
-				document.dispatchEvent(oEvent);
+				oDomElement.dispatchEvent(oEvent);
 			})
 		} else {
 			this._validateScanCode(oDomElement, mStringOrArray);

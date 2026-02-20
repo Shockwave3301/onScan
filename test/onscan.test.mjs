@@ -66,6 +66,31 @@ describe('onScan', () => {
             expect(scannedCode).toBe('ABC123');
         });
 
+        it('should dispatch key events on the target element, not document', () => {
+            const div = document.createElement('div');
+            document.body.appendChild(div);
+            let scannedCode = null;
+            onScan.attachTo(div, {
+                minLength: 3,
+                suffixKeyCodes: [13],
+                onScan: (code) => {
+                    scannedCode = code;
+                },
+            });
+
+            // Simulate with array of event objects including a suffix
+            onScan.simulate(div, [
+                { keyCode: 65, key: 'A' },
+                { keyCode: 66, key: 'B' },
+                { keyCode: 67, key: 'C' },
+                { keyCode: 13, key: 'Enter' },
+            ]);
+
+            expect(scannedCode).toBe('ABC');
+            onScan.detachFrom(div);
+            document.body.removeChild(div);
+        });
+
         it('should trigger scanError for codes shorter than minLength', () => {
             let errorData = null;
             onScan.attachTo(document, {
