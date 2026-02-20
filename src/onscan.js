@@ -389,6 +389,8 @@ var onScan = {
 			return;
         }
 
+		var character;
+
 		switch(true){
 			// If it's not the first character and we encounter a terminating character, trigger scan process
 			case (oVars.firstCharTime && oOptions.suffixKeyCodes.indexOf(iKeyCode)!==-1):
@@ -406,7 +408,7 @@ var onScan = {
 
 			// Otherwise, just add the character to the scan string we're building
 			default:
-				var character = oOptions.keyCodeMapper.call(this, e);
+				character = oOptions.keyCodeMapper.call(this, e);
 				if (character === null){
 					return;
 				}
@@ -440,7 +442,9 @@ var onScan = {
 			oVars.testTimer=setTimeout(onScan._validateScanCode, oOptions.timeBeforeScanTest, this, oVars.accumulatedString);
 		}
 
-		oOptions.onKeyProcess.call(this, character, e);
+		if (character !== undefined) {
+			oOptions.onKeyProcess.call(this, character, e);
+		}
 		return;
 	},
 
