@@ -106,13 +106,78 @@ describe('onScan', () => {
     });
 
     describe('decodeKeyEvent', () => {
-        it('should return a string for numpad keys', () => {
-            onScan.attachTo(document);
+        // Helper to create a minimal keyboard event-like object
+        function keyEvt(props) {
+            return Object.assign({ keyCode: 0, which: 0, key: '', shiftKey: false }, props);
+        }
+
+        it('should decode regular letters via event.key', () => {
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'a' }))).toBe('a');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Z' }))).toBe('Z');
+        });
+
+        it('should decode numbers via event.key', () => {
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '0' }))).toBe('0');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '9' }))).toBe('9');
+        });
+
+        it('should decode hyphens, colons, and brackets (issue #19, #31)', () => {
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '-' }))).toBe('-');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: ':' }))).toBe(':');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '[' }))).toBe('[');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: ']' }))).toBe(']');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '{' }))).toBe('{');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '}' }))).toBe('}');
+        });
+
+        it('should decode shifted characters (issue #43)', () => {
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '?', shiftKey: true }))).toBe('?');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '!', shiftKey: true }))).toBe('!');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '@', shiftKey: true }))).toBe('@');
+        });
+
+        it('should decode other punctuation and symbols', () => {
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '.' }))).toBe('.');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '/' }))).toBe('/');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '=' }))).toBe('=');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '+' }))).toBe('+');
+            expect(onScan.decodeKeyEvent(keyEvt({ key: '"' }))).toBe('"');
+        });
+
+        it('should return null for modifier keys', () => {
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Shift' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Control' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Alt' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Meta' }))).toBeNull();
+        });
+
+        it('should return null for control/navigation keys', () => {
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Enter' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Tab' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Escape' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'ArrowLeft' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Backspace' }))).toBeNull();
+            expect(onScan.decodeKeyEvent(keyEvt({ key: 'Dead' }))).toBeNull();
+        });
+
+        it('should fall back to keyCode for numpad when event.key is missing', () => {
             for (let i = 0; i <= 9; i++) {
                 const result = onScan.decodeKeyEvent({ keyCode: 96 + i, which: 96 + i });
                 expect(result).toBe(String(i));
                 expect(typeof result).toBe('string');
             }
+        });
+
+        it('should fall back to keyCode for letters when event.key is missing', () => {
+            const result = onScan.decodeKeyEvent({ keyCode: 65, which: 65 });
+            expect(result).toBe('a');
+            const shifted = onScan.decodeKeyEvent({ keyCode: 65, which: 65, shiftKey: true });
+            expect(shifted).toBe('A');
+        });
+
+        it('should return null for unknown keyCodes when event.key is missing', () => {
+            expect(onScan.decodeKeyEvent({ keyCode: 16, which: 16 })).toBeNull();
+            expect(onScan.decodeKeyEvent({ keyCode: 17, which: 17 })).toBeNull();
         });
     });
 

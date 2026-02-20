@@ -145,42 +145,39 @@ var onScan = {
 	},
 
 	/**
-	 * Transforms key codes into characters.
+	 * Decodes a keyboard event into a printable character.
 	 *
-	 * By default, only the follwing key codes are taken into account
-	 * - 48-90 (letters and regular numbers)
-	 * - 96-105 (numeric keypad numbers)
-	 * - 106-111 (numeric keypad operations)
-	 *
-	 * All other keys will yield empty strings!
-	 *
-	 * The above keycodes will be decoded using the KeyboardEvent.key property on modern
-	 * browsers. On older browsers the method will fall back to String.fromCharCode()
-	 * putting the result to upper/lower case depending on KeyboardEvent.shiftKey if
-	 * it is set.
+	 * Uses event.key as the primary source, which correctly handles all keyboard
+	 * layouts, shifted characters, and special symbols. Returns null for modifier
+	 * keys, control keys, and other non-printable keys so they are ignored by the
+	 * scan accumulator.
 	 *
 	 * @param KeyboardEvent oEvent
-	 * @return string
+	 * @return string|null - the decoded character, or null if the event should be ignored
 	 */
 	decodeKeyEvent : function (oEvent) {
-		var iCode = this._getNormalizedKeyNum(oEvent);
-		switch (true) {
-			case iCode >= 48 && iCode <= 90: // numbers and letters
-			case iCode >= 106 && iCode <= 111: // operations on numeric keypad (+, -, etc.)
-				if (oEvent.key !== undefined && oEvent.key !== '') {
-					return oEvent.key;
-				}
+		var sKey = oEvent.key;
 
-				var sDecoded = String.fromCharCode(iCode);
-				switch (oEvent.shiftKey) {
-					case false: sDecoded = sDecoded.toLowerCase(); break;
-					case true: sDecoded = sDecoded.toUpperCase(); break;
-				}
-				return sDecoded;
-			case iCode >= 96 && iCode <= 105: // numbers on numeric keypad
+		// If event.key is not available, fall back to legacy keyCode decoding
+		if (sKey === undefined || sKey === '') {
+			var iCode = oEvent.which || oEvent.keyCode;
+			if (iCode >= 96 && iCode <= 105) {
 				return String(iCode - 96);
+			}
+			if (iCode >= 48 && iCode <= 90) {
+				var sDecoded = String.fromCharCode(iCode);
+				return oEvent.shiftKey ? sDecoded.toUpperCase() : sDecoded.toLowerCase();
+			}
+			return null;
 		}
-		return '';
+
+		// Ignore modifier and control keys (key values with length > 1 are named keys)
+		if (sKey.length !== 1) {
+			return null;
+		}
+
+		// Single-character key values are printable characters
+		return sKey;
 	},
 
 	/**
