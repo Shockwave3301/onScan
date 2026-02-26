@@ -31,6 +31,17 @@ package: just load `index.html` from the lib's folder to play around with the se
     - pastes the scanned codes (clipboard-mode)
 2) A modern evergreen browser (Chrome, Firefox, Safari, Edge)
 
+## Device Configuration
+
+Most barcode scanners work out of the box, but some need to be configured first:
+
+- **Keyboard wedge mode**: The scanner must be set to "keyboard wedge" or "HID keyboard" mode so it sends keystrokes to the browser. Some scanners default to serial or USB COM mode, which won't work.
+- **Suffix character**: Many scanners can be configured to send a suffix character (like Enter, key code `13`) after each scan. This helps onScan.js detect the end of a scan reliably via the `suffixKeyCodes` option.
+- **Clipboard/paste mode**: Some built-in device scanners (e.g., on Zebra or Honeywell handhelds) paste the scanned code instead of simulating keystrokes. Set `reactToPaste: true` for these devices.
+- **Scan speed**: If your scanner sends characters slower than usual, increase `avgTimeByChar` (default: `30` ms) and/or `timeBeforeScanTest` (default: `100` ms).
+
+Consult your scanner's manual for configuration barcodes or utility software.
+
 ## How it works
 
 onScan.js attempts to distinguish between regular input and scan input by measuring input spead, 
