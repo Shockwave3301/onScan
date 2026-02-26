@@ -339,7 +339,7 @@ const onScan = {
 		}
 
 		// If it's just the button of the scanner, ignore it and wait for the real input
-		if (oOptions.scanButtonKeyCode !== false && iKeyCode == oOptions.scanButtonKeyCode) {
+		if (oOptions.scanButtonKeyCode !== false && iKeyCode === oOptions.scanButtonKeyCode) {
 			if (!oVars.longPressed) {
 				oVars.longPressTimer = setTimeout(oOptions.onScanButtonLongPress, oOptions.scanButtonLongPressTime, this);
 				oVars.longPressed = true;
@@ -444,7 +444,7 @@ const onScan = {
 		const iKeyCode = onScan._getNormalizedKeyNum(e);
 
 		const oData = scannerDataMap.get(this);
-		if (iKeyCode == oData.options.scanButtonKeyCode) {
+		if (iKeyCode === oData.options.scanButtonKeyCode) {
 			clearTimeout(oData.vars.longPressTimer);
 			oData.vars.longPressed = false;
 		}
