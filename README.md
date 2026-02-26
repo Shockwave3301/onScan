@@ -275,14 +275,6 @@ export class ScannerComponent implements OnInit, OnDestroy {
 }
 ```
 
-## Credits
-
-This library was inspired by the jQuery plugin [jQuery ScannerDetection](https://github.com/iuyes/jQuery-Scanner-Detection) by Julien Maurel.
-
-## History
-
-See [HISTORY.md](https://github.com/axenox/onscan.js/blob/master/HISTORY.md).
-
 ## License
 
 onScan.js is an open source project licensed under MIT.

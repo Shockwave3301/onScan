@@ -26,6 +26,9 @@
         "url": "https://github.com/Shockwave3301/onScan/issues"
     },
     "homepage": "https://github.com/Shockwave3301/onScan",
+    "engines": {
+        "node": ">=20"
+    },
     "scripts": {
         "build": "rollup -c rollup.config.mjs",
         "test": "vitest run",
