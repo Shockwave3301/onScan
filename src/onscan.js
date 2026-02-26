@@ -74,6 +74,7 @@ const onScan = {
 	 */
 	detachFrom(oDomElement) {
 		const oData = scannerDataMap.get(oDomElement);
+		if (!oData) { return; }
 		const bCapture = oData.options.captureEvents;
 
 		// detaching all used events
@@ -99,7 +100,11 @@ const onScan = {
 	 * @return {Object}
 	 */
 	getOptions(oDomElement) {
-		return scannerDataMap.get(oDomElement).options;
+		const oData = scannerDataMap.get(oDomElement);
+		if (!oData) {
+			throw new Error("onScan.js is not initialized for this DOM element. Use attachTo() first.");
+		}
+		return oData.options;
 	},
 
 	/**
@@ -457,7 +462,8 @@ const onScan = {
 	 * @return {boolean}
 	 */
 	isScanInProgressFor(oDomElement) {
-		return scannerDataMap.get(oDomElement).vars.firstCharTime > 0;
+		const oData = scannerDataMap.get(oDomElement);
+		return oData ? oData.vars.firstCharTime > 0 : false;
 	},
 
 	/**
