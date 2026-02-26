@@ -126,20 +126,29 @@ document.addEventListener('scanError', function(e) {
 });
 ```
 
-You can also define callback directly in the options, when initializing onScan:
+### Callbacks vs. events
+
+You can also handle scans via **option callbacks** instead of (or in addition to) DOM events. Note that callbacks and events have **different signatures**:
+
+| | Callback (option) | DOM Event (`addEventListener`) |
+|---|---|---|
+| Scan | `onScan(scanCode, qty)` | `event.detail.scanCode`, `event.detail.qty` |
+| Error | `onScanError(debugObj)` | `event.detail` (same debug object) |
 
 ```javascript
 onScan.attachTo(document, {
+    // Callback style — arguments passed directly
     onScan: function(sScanned, iQty) { ... },
     onScanError: function(oDebug) { ... },
     onScanButtonLongPress: function() { ... },
-    onKeyDetect: function(iKeyCode, oEvent){ ... }
-    onKeyProcess: function(sChar, oEvent){ ... }
-    onPaste: function(sPasted){ ... }
+    // These callbacks have no corresponding DOM event:
+    onKeyDetect: function(iKeyCode, oEvent) { ... },
+    onKeyProcess: function(sChar, oEvent) { ... },
+    onPaste: function(sPasted, oEvent) { ... },
 });
 ```
 
-Note: there are more callbacks in the options, than event types. The non-event callbacks are primarily usefull for testing and finding the right configuration for a specific scanner - see playgournd for examples.
+Note: `onKeyDetect`, `onKeyProcess`, and `onPaste` are callback-only — they do not have corresponding DOM events. They are primarily useful for debugging and finding the right configuration for a specific scanner.
 
 ## Methods
 
