@@ -196,6 +196,62 @@ If you do not have your scanner at hand, you can simulate keyboard events progra
 
 Hint: use the `onKeyDetect` checkbox in the playground to get a full dump of each keyboard event an just paste them in your simulation code.
 
+## Framework Integration
+
+onScan.js is framework-agnostic, but you need to attach/detach it in sync with your component lifecycle to avoid memory leaks.
+
+### React
+
+```javascript
+import onScan from 'onscan.js';
+
+function ScannerComponent() {
+    useEffect(() => {
+        onScan.attachTo(document, {
+            onScan: (code, qty) => console.log('Scanned:', code),
+        });
+        return () => onScan.detachFrom(document);
+    }, []);
+
+    return <div>Ready to scan</div>;
+}
+```
+
+### Vue
+
+```javascript
+import onScan from 'onscan.js';
+
+export default {
+    mounted() {
+        onScan.attachTo(document, {
+            onScan: (code, qty) => console.log('Scanned:', code),
+        });
+    },
+    beforeUnmount() {
+        onScan.detachFrom(document);
+    },
+};
+```
+
+### Angular
+
+```typescript
+import onScan from 'onscan.js';
+
+@Component({ ... })
+export class ScannerComponent implements OnInit, OnDestroy {
+    ngOnInit() {
+        onScan.attachTo(document, {
+            onScan: (code, qty) => console.log('Scanned:', code),
+        });
+    }
+    ngOnDestroy() {
+        onScan.detachFrom(document);
+    }
+}
+```
+
 ## Credits
 
 This library was inspired by the jQuery plugin [jQuery ScannerDetection](https://github.com/iuyes/jQuery-Scanner-Detection) by Julien Maurel.
