@@ -241,6 +241,10 @@ const onScan = {
 		}
 
 		const oFocused = document.activeElement;
+		if (!oFocused) {
+			return false;
+		}
+
 		const aIgnoreList = Array.isArray(ignoreIfFocusOn) ? ignoreIfFocusOn : [ignoreIfFocusOn];
 
 		for (let i = 0; i < aIgnoreList.length; i++) {
