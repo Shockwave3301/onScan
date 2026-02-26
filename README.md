@@ -207,6 +207,14 @@ If you do not have your scanner at hand, you can simulate keyboard events progra
 
 Hint: use the `onKeyDetect` checkbox in the playground to get a full dump of each keyboard event an just paste them in your simulation code.
 
+## Troubleshooting
+
+**Missing or extra characters in scanned codes?** Override the `keyCodeMapper` option with a custom function. Use `onKeyDetect` to log all raw key events from your scanner, then handle the problematic key codes in your mapper and fall back to `onScan.decodeKeyEvent(oEvent)` for everything else. See [Decoding key codes](#decoding-key-codes) for a full example.
+
+**Scans are not detected?** Check that your scanner is in keyboard wedge mode (see [Device Configuration](#device-configuration)). Try increasing `timeBeforeScanTest` and `avgTimeByChar` if your scanner is slower than typical. Use `onKeyDetect` to verify key events are actually reaching the browser.
+
+**Scans fire in input fields?** Set `ignoreIfFocusOn: 'input'` (or a more specific CSS selector) to suppress scan events when an input element is focused.
+
 ## Framework Integration
 
 onScan.js is framework-agnostic, but you need to attach/detach it in sync with your component lifecycle to avoid memory leaks.
