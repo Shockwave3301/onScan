@@ -12,8 +12,8 @@ Framework-agnostic JavaScript scan-events for hardware barcode scanners.
 // Enable scan events for the entire document
 onScan.attachTo(document);
 // Register event listener
-document.addEventListener('scan', function(sScancode, iQuantity) {
-    alert(iQuantity + 'x ' + sScancode); 
+document.addEventListener('scan', function(e) {
+    alert(e.detail.qty + 'x ' + e.detail.scanCode);
 });
 ```
 
@@ -108,19 +108,22 @@ The following options can be set when initializing onScan.js:
 
 ## Events
 
-| Event name | Parameters passed to listener | Description |
+| Event name | `event.detail` | Description |
 | ------ | ------- | ----------- |
-| scan | sScanned, iQty | Triggered after successful scan. Handler arguments: <br> - `sScanned` - [string] scanned code <br> - `iQty` - [integer] quantity    |
-| scanButtonLongPress | | Triggered after the scan button was pressed and held down for a time defined in `scanButtonLongPressThreshold`. This can only be used if the scan button behaves as a key itself and the `scanButtonKeyCode` option is set. No arguments are passed to the handler. |
-| scanError | oDebug | Triggered after a scanned string being dropped due to restrictions. Handler arguments: <br> - `oDebug`    - [object] plain object with various debug data    |
+| scan | `{ scanCode: string, qty: number }` | Triggered after successful scan. |
+| scanError | `{ message, scanCode, scanDuration, avgTimeByChar, minLength }` | Triggered after a scanned string was dropped due to restrictions. |
+| scanButtonLongPress | — | Triggered after the scan button was pressed and held down for `scanButtonLongPressTime` ms. Only works if `scanButtonKeyCode` is set. |
 
-You can register regular event listeners on the DOM element, onScan was initialized for:
+These are standard `CustomEvent`s. Access the data via `event.detail`:
 
 ```javascript
-document
-    .addEventListener('scan', function(sScanned, iQty){ ... });
-    .addEventListener('scanError', function(oDebug){ ... });
-    .addEventListener('scanButtonLongPressed', function(){ ... });
+document.addEventListener('scan', function(e) {
+    console.log(e.detail.scanCode); // the scanned string
+    console.log(e.detail.qty);      // the quantity
+});
+document.addEventListener('scanError', function(e) {
+    console.log(e.detail);          // { message, scanCode, scanDuration, ... }
+});
 ```
 
 You can also define callback directly in the options, when initializing onScan:
