@@ -74,15 +74,16 @@ const onScan = {
 	 */
 	detachFrom(oDomElement) {
 		const oData = scannerDataMap.get(oDomElement);
+		const bCapture = oData.options.captureEvents;
 
 		// detaching all used events
 		if (oData.options.reactToPaste) {
-			oDomElement.removeEventListener("paste", this._handlePaste);
+			oDomElement.removeEventListener("paste", this._handlePaste, bCapture);
 		}
 		if (oData.options.scanButtonKeyCode !== false) {
-			oDomElement.removeEventListener("keyup", this._handleKeyUp);
+			oDomElement.removeEventListener("keyup", this._handleKeyUp, bCapture);
 		}
-		oDomElement.removeEventListener("keydown", this._handleKeyDown);
+		oDomElement.removeEventListener("keydown", this._handleKeyDown, bCapture);
 
 		// clear any pending scan validation timer
 		if (oData.vars.testTimer) {
@@ -108,17 +109,18 @@ const onScan = {
 	 */
 	setOptions(oDomElement, oOptions) {
 		const oData = scannerDataMap.get(oDomElement);
+		const bCapture = oData.options.captureEvents;
 
 		// check if some handlers need to be changed based on possible option changes
 		switch (oData.options.reactToPaste) {
 			case true:
 				if (oOptions.reactToPaste === false) {
-					oDomElement.removeEventListener("paste", this._handlePaste);
+					oDomElement.removeEventListener("paste", this._handlePaste, bCapture);
 				}
 				break;
 			case false:
 				if (oOptions.reactToPaste === true) {
-					oDomElement.addEventListener("paste", this._handlePaste);
+					oDomElement.addEventListener("paste", this._handlePaste, bCapture);
 				}
 				break;
 		}
@@ -126,12 +128,12 @@ const onScan = {
 		switch (oData.options.scanButtonKeyCode) {
 			case false:
 				if (oOptions.scanButtonKeyCode !== false) {
-					oDomElement.addEventListener("keyup", this._handleKeyUp);
+					oDomElement.addEventListener("keyup", this._handleKeyUp, bCapture);
 				}
 				break;
 			default:
 				if (oOptions.scanButtonKeyCode === false) {
-					oDomElement.removeEventListener("keyup", this._handleKeyUp);
+					oDomElement.removeEventListener("keyup", this._handleKeyUp, bCapture);
 				}
 				break;
 		}
