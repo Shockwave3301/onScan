@@ -1,2 +1,8 @@
 node_modules/
-dist/
+
+# IDE files
+.project
+.settings/
+.idea/
+*.swp
+*.swo

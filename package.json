@@ -16,11 +16,6 @@
         "scan"
     ],
     "author": "Shakhbulat Gazgireev",
-    "contributors": [
-        "Shakhbulat Gazgireev",
-        "Andrej Kabachnik",
-        "Thomas Michael"
-    ],
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/Shockwave3301/onScan/issues"

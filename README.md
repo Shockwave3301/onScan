@@ -1,12 +1,11 @@
 # onScan.js
 
-Framework-agnostic JavaScript scan-events for hardware barcode scanners. A more up-to-date fork of [axenox package](https://github.com/axenox/onscan.js/).
+Framework-agnostic JavaScript scan-events for hardware barcode scanners.
 
 ## Quick start
 
-1. Install via `npm install onscan.js` or `bower install onscan-js`
-2. Include `onscan.min.js` in your script
-3. Add the following initilization script to run on page/view load.
+1. Install via `npm install onscan.js`
+2. Add the following initialization script to run on page/view load.
 
 ```javascript
 // Enable scan events for the entire document
@@ -19,10 +18,7 @@ document.addEventListener('scan', function (e) {
 
 ## Demo & Playground
 
-[Online demo](https://a.kabachnik.info/onscan-js-playground.html)
-
-A similar demo is available within the
-package: just load `index.html` from the lib's folder to play around with the settings on your own server.
+A demo playground is included in the package: just load `index.html` from the lib's folder to play around with the settings on your own server.
 
 ## Requirements
 
