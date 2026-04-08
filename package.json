@@ -5,6 +5,20 @@
     "main": "dist/onscan.umd.js",
     "module": "dist/onscan.esm.js",
     "types": "onscan.d.ts",
+    "exports": {
+        ".": {
+            "types": "./onscan.d.ts",
+            "import": "./dist/onscan.esm.js",
+            "require": "./dist/onscan.cjs.js"
+        }
+    },
+    "sideEffects": false,
+    "files": [
+        "dist/",
+        "onscan.d.ts",
+        "README.md",
+        "LICENSE"
+    ],
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Shockwave3301/onScan.git"

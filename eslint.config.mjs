@@ -16,28 +16,10 @@ const browserGlobals = {
 
 export default [
   {
-    ignores: ["onscan.min.js", "dist/"],
+    ignores: ["dist/"],
   },
   js.configs.recommended,
   prettier,
-  {
-    files: ["onscan.js"],
-    languageOptions: {
-      ecmaVersion: 2020,
-      sourceType: "script",
-      globals: {
-        ...browserGlobals,
-        module: "readonly",
-        exports: "readonly",
-        define: "readonly",
-      },
-    },
-    rules: {
-      "no-unused-vars": ["warn", { args: "none" }],
-      "no-var": "off",
-      "prefer-const": "off",
-    },
-  },
   {
     files: ["src/**/*.js"],
     languageOptions: {

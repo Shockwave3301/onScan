@@ -4,5 +4,12 @@ node_modules/
 .project
 .settings/
 .idea/
+.vscode/
 *.swp
 *.swo
+
+# OS files
+.DS_Store
+
+# Build artifacts
+*.tgz
