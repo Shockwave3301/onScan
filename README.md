@@ -1,6 +1,10 @@
-# onScan.js
+<p align="center">
+  <img src="scanner.png" alt="onScan.js logo" width="128" />
+</p>
 
-Framework-agnostic JavaScript scan-events for hardware barcode scanners.
+<h1 align="center">onScan.js</h1>
+
+<p align="center">Framework-agnostic JavaScript scan-events for hardware barcode scanners.</p>
 
 ## Quick start
 
@@ -276,3 +280,7 @@ export class ScannerComponent implements OnInit, OnDestroy {
 ## License
 
 onScan.js is an open source project licensed under MIT.
+
+---
+
+Logo by [manshagraphics](https://www.flaticon.com/authors/manshagraphics) on Flaticon.
