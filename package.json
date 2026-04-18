@@ -1,7 +1,7 @@
 {
-    "name": "onscan.js",
-    "version": "1.5.2",
-    "description": "Framework agnostic onScan event fired when using hardware barcode scanners",
+    "name": "onscan-next",
+    "version": "1.0.0",
+    "description": "Framework-agnostic scan events for hardware barcode scanners",
     "main": "dist/onscan.umd.js",
     "module": "dist/onscan.esm.js",
     "types": "onscan.d.ts",

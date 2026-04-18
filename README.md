@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="scanner.png" alt="onScan.js logo" width="128" />
+  <img src="scanner.png" alt="onscan-next logo" width="128" />
 </p>
 
-<h1 align="center">onScan.js</h1>
+<h1 align="center">onscan-next</h1>
 
 <p align="center">Framework-agnostic JavaScript scan-events for hardware barcode scanners.</p>
 
 ## Quick start
 
-1. Install via `npm install onscan.js`
+1. Install via `npm install onscan-next`
 2. Add the following initialization script to run on page/view load.
 
 ```javascript
-import onScan from 'onscan.js';
+import onScan from 'onscan-next';
 
 // Enable scan events for the entire document
 onScan.attachTo(document);
@@ -38,7 +38,7 @@ A demo playground is included in the package: run `npm run build` first, then lo
 Most barcode scanners work out of the box, but some need to be configured first:
 
 - **Keyboard wedge mode**: The scanner must be set to "keyboard wedge" or "HID keyboard" mode so it sends keystrokes to the browser. Some scanners default to serial or USB COM mode, which won't work.
-- **Suffix character**: Many scanners can be configured to send a suffix character (like Enter, key code `13`) after each scan. This helps onScan.js detect the end of a scan reliably via the `suffixKeyCodes` option.
+- **Suffix character**: Many scanners can be configured to send a suffix character (like Enter, key code `13`) after each scan. This helps onscan-next detect the end of a scan reliably via the `suffixKeyCodes` option.
 - **Clipboard/paste mode**: Some built-in device scanners (e.g., on Zebra or Honeywell handhelds) paste the scanned code instead of simulating keystrokes. Set `reactToPaste: true` for these devices.
 - **Scan speed**: If your scanner sends characters slower than usual, increase `avgTimeByChar` (default: `30` ms) and/or `timeBeforeScanTest` (default: `100` ms).
 
@@ -46,7 +46,7 @@ Consult your scanner's manual for configuration barcodes or utility software.
 
 ## How it works
 
-onScan.js attempts to distinguish between regular input and scan input by measuring input speed,
+onscan-next attempts to distinguish between regular input and scan input by measuring input speed,
 looking for certain prefix and suffix characters, etc. If a scan is detected, it triggers a custom
 JavaScript event called `scan` for the DOM element specified during initialization.
 
@@ -91,13 +91,13 @@ onScan.setOptions(document, {
     singleScanQty: 5, // change the quantity to 5 for every scan
 });
 
-// Remove onScan.js from a DOM element completely
+// Remove onscan-next from a DOM element completely
 onScan.detachFrom(document);
 ```
 
 ## Options
 
-The following options can be set when initializing onScan.js:
+The following options can be set when initializing onscan-next:
 
 | Option                  | Default                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ----------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -171,7 +171,7 @@ Note: `onKeyDetect`, `onKeyProcess`, and `onPaste` are callback-only — they do
 
 | Method              | Arguments                  | Description                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| attachTo            | DOMElement, options        | Initializes listening for scan events for given DOM element. Only events fired for this DOM element will be processed. Use `document` to process all possible events. This is the best pick in most cases. <br><br>NOTE: onScan.js can be attached to a DOM element only once. If you, for some reason, need to call `attachTo()` for a single element multiple times, you must call `detachFrom()` first. |
+| attachTo            | DOMElement, options        | Initializes listening for scan events for given DOM element. Only events fired for this DOM element will be processed. Use `document` to process all possible events. This is the best pick in most cases. <br><br>NOTE: onscan-next can be attached to a DOM element only once. If you, for some reason, need to call `attachTo()` for a single element multiple times, you must call `detachFrom()` first. |
 | detachFrom          | DOMElement                 | Removes all scanner detection logic from the given DOM element.                                                                                                                                                                                                                                                                                                                                            |
 | simulate            | DOMElement, codeOrKeys     | Fires the `scan` event for the given scan code - useful to trigger listeners manually (e.g. for testing). Accepts either an already decoded string or an array with key codes or event property objects - see below for details.                                                                                                                                                                          |
 | setOptions          | DOMElement, options        | Replaces only the newly sent options.                                                                                                                                                                                                                                                                                                                                                                      |
@@ -182,7 +182,7 @@ Note: `onKeyDetect`, `onKeyProcess`, and `onPaste` are callback-only — they do
 
 ## Decoding key codes
 
-By default, onScan.js uses `event.key` to decode keyboard events into characters. Any single-character `key` value is treated as a printable character; multi-character `key` values (like `Shift`, `Enter`, `ArrowLeft`) are ignored. This correctly handles all keyboard layouts, shifted characters, and special symbols out of the box.
+By default, onscan-next uses `event.key` to decode keyboard events into characters. Any single-character `key` value is treated as a printable character; multi-character `key` values (like `Shift`, `Enter`, `ArrowLeft`) are ignored. This correctly handles all keyboard layouts, shifted characters, and special symbols out of the box.
 
 If you need custom decoding logic for a specific scanner, you can override the default algorithm by specifying a custom `keyCodeMapper` like this:
 
@@ -223,12 +223,12 @@ Hint: use the `onKeyDetect` checkbox in the playground to get a full dump of eac
 
 ## Framework Integration
 
-onScan.js is framework-agnostic, but you need to attach/detach it in sync with your component lifecycle to avoid memory leaks.
+onscan-next is framework-agnostic, but you need to attach/detach it in sync with your component lifecycle to avoid memory leaks.
 
 ### React
 
 ```javascript
-import onScan from 'onscan.js';
+import onScan from 'onscan-next';
 
 function ScannerComponent() {
     useEffect(() => {
@@ -245,7 +245,7 @@ function ScannerComponent() {
 ### Vue
 
 ```javascript
-import onScan from 'onscan.js';
+import onScan from 'onscan-next';
 
 export default {
     mounted() {
@@ -262,7 +262,7 @@ export default {
 ### Angular
 
 ```typescript
-import onScan from 'onscan.js';
+import onScan from 'onscan-next';
 
 @Component({ ... })
 export class ScannerComponent implements OnInit, OnDestroy {
@@ -279,7 +279,7 @@ export class ScannerComponent implements OnInit, OnDestroy {
 
 ## License
 
-onScan.js is an open source project licensed under MIT.
+onscan-next is an open source project licensed under MIT.
 
 ---
 
