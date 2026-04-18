@@ -22,6 +22,29 @@ document.addEventListener('scan', function (e) {
 });
 ```
 
+## Installation
+
+**Via a package manager:**
+
+```bash
+npm install onscan-next
+# or
+yarn add onscan-next
+# or
+pnpm add onscan-next
+```
+
+**Via CDN (no build step):**
+
+```html
+<script src="https://unpkg.com/onscan-next/dist/onscan.umd.min.js"></script>
+<script>
+    onScan.attachTo(document);
+</script>
+```
+
+The package ships ESM, CommonJS, and UMD builds. Modern bundlers pick the right one automatically via the `exports` field; the UMD bundle exposes a global named `onScan` for direct-in-browser use.
+
 ## Demo & Playground
 
 A demo playground is included in the package: run `npm run build` first, then load `index.html` in your browser to play around with the settings.
