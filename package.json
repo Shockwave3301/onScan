@@ -1,6 +1,6 @@
 {
     "name": "onscan-next",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Framework-agnostic scan events for hardware barcode scanners",
     "main": "dist/onscan.umd.js",
     "module": "dist/onscan.esm.js",
